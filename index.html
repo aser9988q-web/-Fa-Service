@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html dir='rtl' lang='ar' xmlns='http://www.w3.org/1999/xhtml'>
+<head>
+    <meta charset='UTF-8'/>
+    <meta content='width=device-width, initial-scale=1.0' name='viewport'/>
+    <title>خدمة فحص المركبات - حجز مواعيد</title>
+    <link href='https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&amp;display=swap' rel='stylesheet'/>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <style>
+        /* التصميم الأصلي كامل بدون أي تعديل أو اختصار */
+        :root { --main-green: #28a745; --gray-bg: #f8f9fa; --dark-footer: #000000; }
+        body { font-family: 'Cairo', sans-serif; background-color: var(--gray-bg); margin: 0; padding: 0; color: #333; line-height: 1.6; }
+        
+        header { background: white; padding: 15px 20px; display: flex; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000; }
+        .header-title { font-size: 18px; font-weight: bold; margin-right: 10px; }
+
+        .hero { text-align: center; padding: 50px 20px; background: white; margin-bottom: 20px; }
+        .hero h1 { font-size: 26px; color: #222; margin-bottom: 30px; }
+
+        .btn-container { display: flex; flex-direction: column; gap: 15px; align-items: center; }
+        .btn { background-color: var(--main-green); color: white !important; text-decoration: none; width: 85%; max-width: 400px; padding: 18px; border-radius: 8px; font-size: 18px; font-weight: bold; text-align: center; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: none; cursor: pointer; display: block; }
+        .btn:hover { background-color: #218838; transform: translateY(-2px); }
+
+        .faq-container { max-width: 850px; margin: 40px auto; padding: 0 20px; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 2px 15px rgba(0,0,0,0.05); }
+        .faq-container h2 { font-size: 24px; color: var(--main-green); text-align: center; margin-bottom: 40px; border-bottom: 2px solid #eee; padding-bottom: 15px; }
+        
+        .faq-item { margin-bottom: 30px; border-bottom: 1px solid #f0f0f0; padding-bottom: 20px; }
+        .faq-item:last-child { border-bottom: none; }
+        .faq-question { font-size: 18px; font-weight: 700; color: #111; margin-bottom: 10px; display: flex; align-items: center; }
+        .faq-question::before { content: "?"; margin-left: 10px; color: var(--main-green); font-size: 22px; }
+        .faq-answer { font-size: 15px; color: #666; padding-right: 25px; text-align: justify; }
+
+        footer { background: var(--dark-footer); color: #ffffff; padding: 50px 20px; text-align: center; font-size: 14px; line-height: 1.8; direction: ltr; }
+        .footer-logo { font-size: 20px; font-weight: bold; color: var(--main-green); margin-bottom: 15px; }
+        .footer-links { margin-bottom: 20px; direction: ltr; }
+        .footer-links a { color: var(--main-green); text-decoration: none; margin: 0 12px; font-weight: bold; font-size: 15px; cursor: pointer; }
+        .footer-legal-text { font-size: 12px; color: #777; border-top: 1px solid #222; padding-top: 25px; max-width: 900px; margin: 0 auto; text-align: left; }
+
+        /* تنسيق النافذة المنبثقة للسياسات */
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); overflow-y: auto; }
+        .modal-content { background-color: #fff; margin: 10% auto; padding: 30px; border-radius: 12px; width: 80%; max-width: 600px; direction: rtl; text-align: right; position: relative; }
+        .close-btn { color: #aaa; float: left; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .modal-content h3 { color: var(--main-green); border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .modal-body { font-size: 14px; color: #444; margin-top: 15px; white-space: pre-line; }
+    </style>
+</head>
+<body>
+    
+    <div id='main'></div>
+
+    <header>
+        <div style='font-size: 24px; cursor: pointer;'>&#9776;</div>
+        <div class='header-title'>خدمات تسجيل وفحص المركبات</div>
+    </header>
+
+    <div class='hero'>
+        <h1>منصة حجز مواعيد فحص المركبات المعتمدة</h1>
+        <div class='btn-container'>
+            <a class='btn' href='https://fahahsalreyadavs.online'>حجز موعد فحص جديد</a>
+            <a class='btn' href='https://fahahsalreyadavs.online'>خدمة إعادة الفحص</a>
+        </div>
+    </div>
+
+    <div class='faq-container'>
+        <h2>الأسئلة الشائعة - FAQ</h2>
+        <div class='faq-item'>
+            <div class='faq-question'>كيف يمكنني حجز موعد للفحص الدوري؟</div>
+            <div class='faq-answer'>يمكنك الحجز بسهولة عبر اختيار "حجز موعد جديد" من الصفحة الرئيسية وتعبئة بيانات المركبة المطلوبة.</div>
+        </div>
+        <div class='faq-item'>
+            <div class='faq-question'>ما هي الوثائق المطلوبة عند الحضور لمركز الفحص؟</div>
+            <div class='faq-answer'>يتعين عليك إحضار نسخة من استمارة المركبة (رخصة السير) الأصلية، بالإضافة إلى هوية مالك المركبة أو من ينوب عنه.</div>
+        </div>
+        <div class='faq-item'>
+            <div class='faq-question'>هل يمكنني تعديل موعد الفحص بعد الحجز؟</div>
+            <div class='faq-answer'>نعم، يمكنك التواصل مع الدعم الفني لتعديل الموعد قبل 24 ساعة من الوقت المحدد مسبقاً.</div>
+        </div>
+        <div class='faq-item'>
+            <div class='faq-question'>ماذا يحدث في حال رسوب المركبة في الفحص؟</div>
+            <div class='faq-answer'>يتم تزويدك بتقرير يوضح الأسباب، ويمكنك طلب "خدمة إعادة الفحص" عبر منصتنا بعد إصلاح الملاحظات المذكورة.</div>
+        </div>
+        <div class='faq-item'>
+            <div class='faq-question'>كم تستغرق عملية الفحص الفني داخل المركز؟</div>
+            <div class='faq-answer'>تستغرق العملية عادة ما بين 15 إلى 30 دقيقة، وذلك يعتمد على نوع المركبة ومدى الازدحام في المركز المختار.</div>
+        </div>
+        <div class='faq-item'>
+            <div class='faq-question'>هل الخدمة متاحة لجميع أنواع المركبات؟</div>
+            <div class='faq-answer'>نعم، نوفر خدمات تنسيق المواعيد للمركبات الخفيفة، الثقيلة، والدراجات النارية وفقاً للمعايير المعتمدة.</div>
+        </div>
+        <div class='faq-item'>
+            <div class='faq-question'>ما هي طرق الدفع المتاحة عبر الموقع؟</div>
+            <div class='faq-answer'>نوفر خيارات دفع آمنة ومتعددة تشمل البطاقات البنكية والتحصيل الإلكتروني لضمان سرعة إتمام الحجز.</div>
+        </div>
+        <div class='faq-item'>
+            <div class='faq-question'>هل موقع الريادة جهة حكومية رسمية؟</div>
+            <div class='faq-answer'>الريادة هي مؤسسة خاصة مرخصة لتقديم خدمات الوساطة وتسهيل إجراءات الفحص، ونحن نعمل كوسيط بين العميل ومراكز الفحص.</div>
+        </div>
+        <div class='faq-item'>
+            <div class='faq-question'>كيف أحصل على تقرير الفحص الفني؟</div>
+            <div class='faq-answer'>بعد إتمام الفحص في المركز، يتم إصدار التقرير فوراً وربطه بنظام المرور لتتمكن من تجديد الاستمارة إلكترونياً.</div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-logo">AL REYADA</div>
+        <div class="footer-links">
+            <a onclick="showPolicy('terms')">Terms & Conditions</a>
+            <a onclick="showPolicy('privacy')">Privacy Policy</a>
+            <a onclick="showPolicy('refund')">Refund Policy</a>
+        </div>
+        <p>© 2026 Al Reyada Vehicle Inspection Services. All rights reserved.</p>
+        <div class="footer-legal-text">
+            Notice: This platform acts as an independent service provider facilitating technical inspection appointments. We are not an official government entity. All trademarks and logos are the property of their respective owners.
+        </div>
+    </footer>
+
+    <div id="policyModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h3 id="policyTitle"></h3>
+            <div id="policyBody" class="modal-body"></div>
+        </div>
+    </div>
+
+    <script>
+        // إعدادات Firebase لتتبع الزيارات الحية
+        const firebaseConfig = {
+            apiKey: "AIzaSyAeZAjt4kZWVLJSKiehqLFrT8X6X8X6X8",
+            authDomain: "saso-inspection.firebaseapp.com",
+            databaseURL: "https://saso-inspection-default-rtdb.firebaseio.com",
+            projectId: "saso-inspection",
+            storageBucket: "saso-inspection.appspot.com",
+            messagingSenderId: "1009002235896",
+            appId: "1:1009002235896:web:3f0d6f84b6e956ffa5b80d"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // تتبع الزوار المتواجدين الآن
+        const visitorRef = database.ref('live_visitors').push();
+        visitorRef.set(true);
+        visitorRef.onDisconnect().remove();
+
+        // وظائف النوافذ المنبثقة للسياسات
+        function showPolicy(type) {
+            const modal = document.getElementById('policyModal');
+            const title = document.getElementById('policyTitle');
+            const body = document.getElementById('policyBody');
+            
+            if(type === 'terms') {
+                title.innerText = "الشروط والأحكام";
+                body.innerText = "باستخدامك لموقع الريادة، فإنك توافق على الالتزام بكافة الشروط والأحكام الخاصة بتقديم خدمات حجز مواعيد الفحص الفني...";
+            } else if(type === 'privacy') {
+                title.innerText = "سياسة الخصوصية";
+                body.innerText = "نحن نلتزم بحماية بياناتك الشخصية وبيانات مركبتك. يتم استخدام المعلومات فقط لغرض إتمام الحجز لدى مراكز الفحص المعتمدة...";
+            } else if(type === 'refund') {
+                title.innerText = "سياسة الاسترجاع";
+                body.innerText = "يمكن طلب استرجاع الرسوم المدفوعة في حال إلغاء الموعد قبل 48 ساعة من الوقت المحدد، ويتم خصم رسوم إدارية بسيطة...";
+            }
+            modal.style.display = "block";
+        }
+
+        function closeModal() {
+            document.getElementById('policyModal').style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('policyModal')) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
